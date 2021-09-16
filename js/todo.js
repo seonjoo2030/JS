@@ -10,27 +10,24 @@ function loadToDos()
     if (null !== savedToDos)
     {
         const parsedToDos = JSON.parse(savedToDos);
-        toDos = parsedToDos;
-        // 배열의 요소 별로 함수 실행하게 해줌
-        //forEach((item) => func(item)) 이렇게 함수를 실행할 수 있다.
-        //forEach(func) 하고, function func(item){} 이런식으로 함수를 만들어서 호출하도록 가능하다.
-        //item은 각 배열 요소다.
+    
+        toDos = parsedToDos;    
         parsedToDos.forEach(paintToDo); 
     }
 }
 
 function saveToDos()
 {
-    // localStorage에 배열을 문자열로 저장할 때, JSON.stringify() 함수를 사용한다.
-    // 반대로 JSON.parse 로 문자열을 배열로 변환할 수 있다. 
     localStorage.setItem("todos", JSON.stringify(toDos));
 }
 
 function deleteToDo(event)
 {
-    //event.target은 해당 element 를 가리키고, parentElement는 그 element의 부모를 가리킨다.
     const li = event.target.parentElement;
     li.remove();
+    toDos = toDos.filter((toDo) => toDo.id !== parseInt(li.id)); // 지우고자 하는 id와 동일하다면 false 반환
+    saveToDos(); // 수정된 db 내용을 localstrage 에 저장.
+    
 }
 
 function paintToDo(newTodo)
@@ -39,7 +36,8 @@ function paintToDo(newTodo)
     const span = document.createElement("span");
     const button = document.createElement("button");
 
-    span.innerText = newTodo;
+    li.id = newTodo.id; //li에 id 추가
+    span.innerText = newTodo.text;
     button.innerText = "X";
 
     button.addEventListener("click", deleteToDo);
@@ -53,11 +51,14 @@ function onToDoSubmit(event)
 {
     event.preventDefault();
     const newTodo = toDoInput.value;
-
+    const newTodoObj = {
+        text:newTodo,
+        id: Date.now()
+    };
     if (newTodo)
     {
-        toDos.push(newTodo); // 배열에 추가.
-        paintToDo(newTodo);
+        toDos.push(newTodoObj); // 배열에 추가. object 추가로 변경
+        paintToDo(newTodoObj);
         saveToDos();
         toDoInput.value = "";
     }
